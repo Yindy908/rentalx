@@ -1,26 +1,26 @@
 import { Router } from "express";
 
-import { Category } from "../model/Category";
+import { CategoriesRepository } from "../modules/cars/repositories/CategoriesRepository";
+import { CreateCategoryService } from "../modules/cars/services/CreateCategoryService";
 
 const categoriesRoutes = Router();
-
-const categories: Category[] = [];
+const categoriesRepository = new CategoriesRepository();
 
 categoriesRoutes.post("/", (request, response) => {
     const { name, description } = request.body;
 
-    const category = new Category();
-    // category.name = name;
-    // category.description = description;
-    // category.created_at = new Date();
-    Object.assign(category, {
-        name,
-        description,
-        created_at: new Date(),
-    });
+    // eslint-disable-next-line prettier/prettier
+    const createCategoryService = new CreateCategoryService(categoriesRepository);
 
-    categories.push(category);
-    return response.status(201).json({ category });
+    createCategoryService.execute({ name, description });
+
+    return response.status(201).send();
+});
+
+categoriesRoutes.get("/", (request, response) => {
+    const all = categoriesRepository.list();
+
+    return response.json(all);
 });
 
 export { categoriesRoutes };
